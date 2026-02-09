@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/SmashCore.dir/link.d CMakeFiles/SmashCore.dir/src/main.cpp.o -o SmashCore

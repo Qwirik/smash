@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/qwirik/code/smash/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
