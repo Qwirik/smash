@@ -1,3 +1,0 @@
-/home/qwirik/code/smash/build/CMakeFiles/SmashCore.dir
-/home/qwirik/code/smash/build/CMakeFiles/edit_cache.dir
-/home/qwirik/code/smash/build/CMakeFiles/rebuild_cache.dir
