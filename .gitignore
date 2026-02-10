@@ -8,6 +8,7 @@ obj/
 third_party/*
 
 !third_party/spdlog/
+!third_party/crow/
 
 # Временные файлы компилятора и системы
 *.o

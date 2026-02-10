@@ -1,10 +1,24 @@
+#include "crow/app.h"
 #include <spdlog/spdlog.h>
 
-int main(){
+int main() {
+    spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] %v");
+		
+    spdlog::info("Starting SmashCore Server...");
 
-	spdlog::info("SmashCore v0.1.0 is starting...");
+    crow::SimpleApp app;
 
-	spdlog::warn("Checking hardware sensors... (mock)");
-    	spdlog::error("No sensors found, but we are cool!");	
-	return 0;
+    // Маршрут 1: Главная страница
+    CROW_ROUTE(app, "/")([](){
+        return "SmashCore API is Online!";
+    });
+
+    // Маршрут 2: Тестовый прием данных от ESP
+    CROW_ROUTE(app, "/api/test")([](){
+        spdlog::info("ESP8266 sent a test heartbeat!");
+        return "OK";
+    });
+
+    // Запуск на порту 8080
+    app.port(8080).multithreaded().run();
 }
