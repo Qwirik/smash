@@ -1,0 +1,62 @@
+[
+{
+  "directory": "/home/qwirik/code/smash",
+  "command": "/usr/bin/c++ -DSPDLOG_COMPILED_LIB -I/home/qwirik/code/smash/src -I/home/qwirik/code/smash/third_party/crow/include -I/home/qwirik/code/smash/third_party/spdlog/include -std=gnu++20 -o CMakeFiles/SmashCore.dir/src/main.cpp.o -c /home/qwirik/code/smash/src/main.cpp",
+  "file": "/home/qwirik/code/smash/src/main.cpp",
+  "output": "CMakeFiles/SmashCore.dir/src/main.cpp.o"
+},
+{
+  "directory": "/home/qwirik/code/smash",
+  "command": "/usr/bin/c++ -DSPDLOG_COMPILED_LIB -I/home/qwirik/code/smash/src -I/home/qwirik/code/smash/third_party/crow/include -I/home/qwirik/code/smash/third_party/spdlog/include -std=gnu++20 -o CMakeFiles/SmashCore.dir/src/database.cpp.o -c /home/qwirik/code/smash/src/database.cpp",
+  "file": "/home/qwirik/code/smash/src/database.cpp",
+  "output": "CMakeFiles/SmashCore.dir/src/database.cpp.o"
+},
+{
+  "directory": "/home/qwirik/code/smash",
+  "command": "/usr/bin/c++ -DSPDLOG_COMPILED_LIB -I/home/qwirik/code/smash/src -I/home/qwirik/code/smash/third_party/crow/include -I/home/qwirik/code/smash/third_party/spdlog/include -std=gnu++20 -o CMakeFiles/SmashCore.dir/src/config_manager.cpp.o -c /home/qwirik/code/smash/src/config_manager.cpp",
+  "file": "/home/qwirik/code/smash/src/config_manager.cpp",
+  "output": "CMakeFiles/SmashCore.dir/src/config_manager.cpp.o"
+},
+{
+  "directory": "/home/qwirik/code/smash/third_party/spdlog",
+  "command": "/usr/bin/c++ -DSPDLOG_COMPILED_LIB -DSPDLOG_FWRITE_UNLOCKED -I/home/qwirik/code/smash/third_party/spdlog/include -std=c++20 -o CMakeFiles/spdlog.dir/src/spdlog.cpp.o -c /home/qwirik/code/smash/third_party/spdlog/src/spdlog.cpp",
+  "file": "/home/qwirik/code/smash/third_party/spdlog/src/spdlog.cpp",
+  "output": "third_party/spdlog/CMakeFiles/spdlog.dir/src/spdlog.cpp.o"
+},
+{
+  "directory": "/home/qwirik/code/smash/third_party/spdlog",
+  "command": "/usr/bin/c++ -DSPDLOG_COMPILED_LIB -DSPDLOG_FWRITE_UNLOCKED -I/home/qwirik/code/smash/third_party/spdlog/include -std=c++20 -o CMakeFiles/spdlog.dir/src/stdout_sinks.cpp.o -c /home/qwirik/code/smash/third_party/spdlog/src/stdout_sinks.cpp",
+  "file": "/home/qwirik/code/smash/third_party/spdlog/src/stdout_sinks.cpp",
+  "output": "third_party/spdlog/CMakeFiles/spdlog.dir/src/stdout_sinks.cpp.o"
+},
+{
+  "directory": "/home/qwirik/code/smash/third_party/spdlog",
+  "command": "/usr/bin/c++ -DSPDLOG_COMPILED_LIB -DSPDLOG_FWRITE_UNLOCKED -I/home/qwirik/code/smash/third_party/spdlog/include -std=c++20 -o CMakeFiles/spdlog.dir/src/color_sinks.cpp.o -c /home/qwirik/code/smash/third_party/spdlog/src/color_sinks.cpp",
+  "file": "/home/qwirik/code/smash/third_party/spdlog/src/color_sinks.cpp",
+  "output": "third_party/spdlog/CMakeFiles/spdlog.dir/src/color_sinks.cpp.o"
+},
+{
+  "directory": "/home/qwirik/code/smash/third_party/spdlog",
+  "command": "/usr/bin/c++ -DSPDLOG_COMPILED_LIB -DSPDLOG_FWRITE_UNLOCKED -I/home/qwirik/code/smash/third_party/spdlog/include -std=c++20 -o CMakeFiles/spdlog.dir/src/file_sinks.cpp.o -c /home/qwirik/code/smash/third_party/spdlog/src/file_sinks.cpp",
+  "file": "/home/qwirik/code/smash/third_party/spdlog/src/file_sinks.cpp",
+  "output": "third_party/spdlog/CMakeFiles/spdlog.dir/src/file_sinks.cpp.o"
+},
+{
+  "directory": "/home/qwirik/code/smash/third_party/spdlog",
+  "command": "/usr/bin/c++ -DSPDLOG_COMPILED_LIB -DSPDLOG_FWRITE_UNLOCKED -I/home/qwirik/code/smash/third_party/spdlog/include -std=c++20 -o CMakeFiles/spdlog.dir/src/async.cpp.o -c /home/qwirik/code/smash/third_party/spdlog/src/async.cpp",
+  "file": "/home/qwirik/code/smash/third_party/spdlog/src/async.cpp",
+  "output": "third_party/spdlog/CMakeFiles/spdlog.dir/src/async.cpp.o"
+},
+{
+  "directory": "/home/qwirik/code/smash/third_party/spdlog",
+  "command": "/usr/bin/c++ -DSPDLOG_COMPILED_LIB -DSPDLOG_FWRITE_UNLOCKED -I/home/qwirik/code/smash/third_party/spdlog/include -std=c++20 -o CMakeFiles/spdlog.dir/src/cfg.cpp.o -c /home/qwirik/code/smash/third_party/spdlog/src/cfg.cpp",
+  "file": "/home/qwirik/code/smash/third_party/spdlog/src/cfg.cpp",
+  "output": "third_party/spdlog/CMakeFiles/spdlog.dir/src/cfg.cpp.o"
+},
+{
+  "directory": "/home/qwirik/code/smash/third_party/spdlog",
+  "command": "/usr/bin/c++ -DSPDLOG_COMPILED_LIB -DSPDLOG_FWRITE_UNLOCKED -I/home/qwirik/code/smash/third_party/spdlog/include -std=c++20 -o CMakeFiles/spdlog.dir/src/bundled_fmtlib_format.cpp.o -c /home/qwirik/code/smash/third_party/spdlog/src/bundled_fmtlib_format.cpp",
+  "file": "/home/qwirik/code/smash/third_party/spdlog/src/bundled_fmtlib_format.cpp",
+  "output": "third_party/spdlog/CMakeFiles/spdlog.dir/src/bundled_fmtlib_format.cpp.o"
+}
+]

@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    container_name: smash-db
+    restart: always
+    environment:
+      POSTGRES_USER: qwirik
+      POSTGRES_PASSWORD: smash_password
+      POSTGRES_DB: smashcore
+    ports:
+      - "5432:5432"
+    volumes:
+      - smash_pgdata:/var/lib/postgresql/data
+
+volumes:
+  smash_pgdata:

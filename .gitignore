@@ -1,16 +1,18 @@
-# Сборка
+# Сборка: игнорируем всё, что создает CMake
 build/
-bin/
-obj/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
 
-# Библиотеки (мы не пушим их код, так как их можно скачать заново)
+# Бинарники
+SmashCore
 
-third_party/*
+# Секреты и конфиги (ВАЖНО!)
+.env
+config.json
 
-!third_party/spdlog/
-!third_party/crow/
-
-# Временные файлы компилятора и системы
-*.o
-*.out
-.DS_Store
+# Временные файлы редакторов
+.vscode/
+.idea/
+*.swp
