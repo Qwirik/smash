@@ -1,13 +1,26 @@
 #include "database.hpp"
+#include "config_manager.hpp"
 #include <spdlog/spdlog.h>
-
-Database::Database(const std::string& conn_str) : connection_string(conn_str) {}
+#include <iostream>
 
 void Database::connect() {
+    // Берем строку подключения из .env
+    std::string db_url = ConfigManager::getEnv("DATABASE_URL", "");
+    
     try {
-        conn = std::make_unique<pqxx::connection>(connection_string);
+        conn = std::make_unique<pqxx::connection>(db_url);
         if (conn->is_open()) {
             spdlog::info("Connected to PostgreSQL successfully: {}", conn->dbname());
+            
+            // Создаем структурированную таблицу
+            pqxx::work W(*conn);
+            W.exec("CREATE TABLE IF NOT EXISTS sensor_readings ("
+                   "id SERIAL PRIMARY KEY, "
+                   "device_id VARCHAR(50) NOT NULL, "
+                   "temperature NUMERIC(5, 2), "
+                   "humidity NUMERIC(5, 2), "
+                   "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+            W.commit();
         }
     } catch (const std::exception& e) {
         spdlog::error("Database connection error: {}", e.what());
@@ -15,16 +28,19 @@ void Database::connect() {
 }
 
 void Database::save_reading(const std::string& device_id, double temp, double hum) {
+    if (!conn || !conn->is_open()) {
+        spdlog::error("Cannot save data: Database is not connected.");
+        return;
+    }
+    
     try {
         pqxx::work W(*conn);
-        W.exec_params("INSERT INTO sensor_readings (device_id, temperature, humidity) VALUES ($1, $2, $3)",
-            device_id,
-	    temp,
-	    hum
+        W.exec("INSERT INTO sensor_readings (device_id, temperature, humidity) VALUES ($1, $2, $3)",
+            pqxx::params{device_id, temp, hum}
         );
         W.commit();
-        spdlog::debug("Data saved to DB for device: {}", device_id);
+        spdlog::info("Saved to DB: {} | {} | {}", device_id, temp, hum);
     } catch (const std::exception& e) {
-        spdlog::error("Failed to save data: {}", e.what());
+        spdlog::error("Failed to insert reading: {}", e.what());
     }
 }

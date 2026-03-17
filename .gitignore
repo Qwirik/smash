@@ -1,18 +1,16 @@
-# Сборка: игнорируем всё, что создает CMake
+# Папки сборки
 build/
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
+.cache/
 
-# Бинарники
-SmashCore
-
-# Секреты и конфиги (ВАЖНО!)
+# Файлы конфигурации и секреты
 .env
 config.json
+config.txt
+sensor_readings.csv
 
-# Временные файлы редакторов
-.vscode/
-.idea/
-*.swp
+# Локальные файлы CMake и IDE
+CMakeCache.txt
+CMakeFiles/
+compile_commands.json
+*.o
+*.a

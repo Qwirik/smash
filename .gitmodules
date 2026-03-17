@@ -4,3 +4,6 @@
 [submodule "third_party/crow"]
 	path = third_party/crow
 	url = https://github.com/CrowCpp/Crow.git
+[submodule "third_party/json"]
+	path = third_party/json
+	url = https://github.com/nlohmann/json.git
