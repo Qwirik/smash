@@ -4,6 +4,6 @@ from google import genai
 client = genai.Client()
 
 response = client.models.generate_content(
-    model="gemini-3-flash-preview", contents="Explain how AI works in a few words"
+    model="gemini-3-flash-preview", contents="Tell me about how to take grant to study abroad"
 )
 print(response.text)
