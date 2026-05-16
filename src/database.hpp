@@ -4,15 +4,34 @@
 #include <pqxx/pqxx>
 #include <string>
 #include <memory>
+#include <vector>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 class Database {
 public:
-    // Конструктор по умолчанию (без параметров)
     Database() = default;
-    
     void connect();
-    void save_reading(const std::string& device_id, double temp, double hum);
+    void seed_test_data();
     
+    void save_reading(const std::string& device_id, double temp, double hum);
+    void update_status(const std::string& device_id, const std::string& status);
+    json get_all_devices();
+    json get_device_history(const std::string& device_id, int limit = 20);
+    
+    void add_command(const std::string& device_id, const std::string& cmd, std::string origin = "system");
+    std::string get_pending_command(const std::string& device_id);
+    void delete_device(const std::string& device_id);
+
+    void check_heartbeats();
+    void process_rules();
+    
+    // Работа с правилами
+    void add_rule(const std::string& name, const std::string& t_dev, const std::string& cond, double val, const std::string& a_dev, const std::string& a_cmd);
+    void list_rules();
+    void delete_rule(const std::string& name);
+
 private:
     std::unique_ptr<pqxx::connection> conn;
 };
