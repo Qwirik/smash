@@ -31,8 +31,11 @@ protected:
             log_str.insert(log_str.find("]", pos) + 1, "[0m");
         }
 
+        // Ensure no double newlines and carriage returns
+        if (!log_str.empty() && log_str.back() == '\n') log_str.pop_back();
+
         std::lock_guard<std::mutex> lock(log_mutex);
-        log_queue.push(log_str);
+        log_queue.push(log_str + "\n");
     }
     void flush_() override {}
 };

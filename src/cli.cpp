@@ -192,7 +192,7 @@ void run_cli(crow::SimpleApp& app) {
         while (!log_queue.empty()) {
             rl_save_prompt(); rl_replace_line("", 0); rl_redisplay();
             std::cout << log_queue.front(); log_queue.pop();
-            rl_restore_prompt(); rl_restore_prompt();
+            rl_restore_prompt(); rl_on_new_line(); rl_redisplay();
         }
     }
     rl_callback_handler_remove();
