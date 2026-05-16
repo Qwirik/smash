@@ -1,3 +1,6 @@
+#include <iostream>
+#include <iomanip>
+#include <ctime>
 #include "database.hpp"
 #include "config_manager.hpp"
 #include <spdlog/spdlog.h>
@@ -9,7 +12,7 @@ void Database::connect() {
         conn = std::make_unique<pqxx::connection>(db_url);
         pqxx::work W(*conn);
         
-        // Таблица истории датчиков
+        // Sensor history table
         W.exec("CREATE TABLE IF NOT EXISTS sensor_readings ("
                "id SERIAL PRIMARY KEY, "
                "device_id VARCHAR(50), "
@@ -17,13 +20,13 @@ void Database::connect() {
                "humidity NUMERIC(5,2), "
                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
 
-        // Таблица текущих статусов и состояний
+        // Current status and state table
         W.exec("CREATE TABLE IF NOT EXISTS device_status ("
                "device_id VARCHAR(50) PRIMARY KEY, "
                "status VARCHAR(50), "
                "last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
 
-        // Таблица очереди команд с указанием источника (origin)
+        // Command queue table with origin indication
         W.exec("CREATE TABLE IF NOT EXISTS device_commands ("
                "id SERIAL PRIMARY KEY, "
                "device_id VARCHAR(50), "
@@ -32,7 +35,7 @@ void Database::connect() {
                "is_executed BOOLEAN DEFAULT FALSE, "
                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
 
-        // Таблица правил автоматизации
+        // Automation rules table
         W.exec("CREATE TABLE IF NOT EXISTS rules ("
                "id SERIAL PRIMARY KEY, "
                "name VARCHAR(50), "
@@ -42,6 +45,18 @@ void Database::connect() {
                "action_dev VARCHAR(50), "
                "action_cmd VARCHAR(50))");
         
+                // Time rules table
+        W.exec("CREATE TABLE IF NOT EXISTS time_rules ("
+               "id SERIAL PRIMARY KEY, "
+               "name VARCHAR(50), "
+               "cron_expr VARCHAR(50), "
+               "action_dev VARCHAR(50), "
+               "action_cmd VARCHAR(50), "
+               "last_triggered TIMESTAMP)");
+
+        // Add device_type to device_status if not exists
+        W.exec("ALTER TABLE device_status ADD COLUMN IF NOT EXISTS device_type VARCHAR(50) DEFAULT 'unknown'");
+
         W.commit();
         spdlog::info("Connected to PostgreSQL successfully");
     } catch (const std::exception& e) {
@@ -53,8 +68,8 @@ void Database::connect() {
 void Database::add_rule(const std::string& name, const std::string& t_dev, const std::string& cond, double val, const std::string& a_dev, const std::string& a_cmd) {
     try {
         pqxx::work W(*conn);
-        W.exec(pqxx::zview("INSERT INTO rules (name, trigger_dev, condition, threshold, action_dev, action_cmd) VALUES ($1, $2, $3, $4, $5, $6)"),
-               pqxx::params{name, t_dev, cond, val, a_dev, a_cmd});
+        W.exec_params(("INSERT INTO rules (name, trigger_dev, condition, threshold, action_dev, action_cmd) VALUES ($1, $2, $3, $4, $5, $6)"),
+               name, t_dev, cond, val, a_dev, a_cmd);
         W.commit();
     } catch (const std::exception& e) { spdlog::error("Rule error: {}", e.what()); }
 }
@@ -153,7 +168,7 @@ std::string Database::get_pending_command(const std::string& device_id) {
 void Database::check_heartbeats() {
     try {
         pqxx::work W(*conn);
-        // Если устройства нет 30 секунд — ставим статус offline, но сохраняем последнее состояние
+        // If device is absent for 30 seconds - set status to offline, but keep the last state
         W.exec("UPDATE device_status SET status = 'offline' "
                "WHERE last_seen < NOW() - INTERVAL '30 seconds' AND status NOT LIKE 'offline%'");
         W.commit();
@@ -179,7 +194,7 @@ void Database::process_rules() {
                 else if (cond == "==" && std::abs(current - val) < 0.1) fire = true;
 
                 if (fire) {
-                    // Проверяем, нет ли уже такой невыполненной команды в очереди (защита от спама)
+                    // Check if such unexecuted command is already in queue (spam protection)
                     pqxx::result dup = N.exec_params("SELECT id FROM device_commands WHERE device_id=$1 AND command=$2 AND is_executed=FALSE", 
                                                     r[3].as<std::string>(), r[4].as<std::string>());
                     if (dup.empty()) {
@@ -211,12 +226,71 @@ void Database::seed_test_data() {
                    "('ESP_Kitchen', 'offline'), "
                    "('Relay_Bedroom', 'online | relay:off')");
             
-            // Добавим правило по умолчанию: если в гостиной > 25 градусов, включить реле в спальне
+            // Add default rule: if living room > 25 degrees, turn on bedroom relay
             W.exec("INSERT INTO rules (name, trigger_dev, condition, threshold, action_dev, action_cmd) "
                    "VALUES ('AutoCool', 'ESP_LivingRoom', '>', 25.0, 'Relay_Bedroom', 'relay_on')");
             
             W.commit();
             spdlog::info("Test data and default rule seeded.");
         } else { W.commit(); }
+    } catch (...) {}
+}
+
+void Database::add_time_rule(const std::string& name, const std::string& time_cron, const std::string& action_dev, const std::string& action_cmd) {
+    try {
+        pqxx::work W(*conn);
+        W.exec_params("INSERT INTO time_rules (name, cron_expr, action_dev, action_cmd) VALUES ($1, $2, $3, $4)",
+               name, time_cron, action_dev, action_cmd);
+        W.commit();
+    } catch (const std::exception& e) { spdlog::error("Time Rule error: {}", e.what()); }
+}
+
+void Database::register_device(const std::string& device_id, const std::string& device_type) {
+    try {
+        pqxx::work W(*conn);
+        W.exec_params("INSERT INTO device_status (device_id, status, device_type) VALUES ($1, 'registered', $2) "
+                      "ON CONFLICT (device_id) DO UPDATE SET device_type=$2",
+                      device_id, device_type);
+        W.commit();
+        spdlog::info("Device {} registered as {}", device_id, device_type);
+    } catch (const std::exception& e) { spdlog::error("Registration error: {}", e.what()); }
+}
+
+void Database::process_time_rules() {
+    try {
+        pqxx::nontransaction N(*conn);
+        pqxx::result rules = N.exec("SELECT id, cron_expr, action_dev, action_cmd, last_triggered FROM time_rules");
+
+        auto t = std::time(nullptr);
+        auto tm = *std::localtime(&t);
+        char buf[10];
+        std::strftime(buf, sizeof(buf), "%H:%M", &tm);
+        std::string current_time(buf);
+
+        for (auto r : rules) {
+            std::string cron = r[1].as<std::string>();
+            if (cron == current_time) {
+                bool should_trigger = true;
+                if (!r[4].is_null()) {
+                    std::string last = r[4].as<std::string>();
+                    char date_buf[20];
+                    std::strftime(date_buf, sizeof(date_buf), "%Y-%m-%d %H:%M", &tm);
+                    std::string current_datetime(date_buf);
+
+                    if (last.find(current_datetime) != std::string::npos) {
+                        should_trigger = false;
+                    }
+                }
+
+                if (should_trigger) {
+                    add_command(r[2].as<std::string>(), r[3].as<std::string>(), "time_automation");
+                    spdlog::info("Time Rule triggered! Action: {} -> {}", r[2].as<std::string>(), r[3].as<std::string>());
+
+                    pqxx::work W(*conn);
+                    W.exec_params("UPDATE time_rules SET last_triggered=NOW() WHERE id=$1", r[0].as<int>());
+                    W.commit();
+                }
+            }
+        }
     } catch (...) {}
 }

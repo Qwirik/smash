@@ -20,7 +20,7 @@ std::string ConfigManager::getEnv(const std::string& key, const std::string& def
 }
 
 void ConfigManager::init() {
-    // Чтение секретов из .env
+    // Read secrets from .env
     std::ifstream env_file(".env");
     if (env_file.is_open()) {
         std::string line;
@@ -35,7 +35,7 @@ void ConfigManager::init() {
         spdlog::warn(".env file not found!");
     }
 
-    // Чтение настроек из config.json через nlohmann/json
+    // Read settings from config.json via nlohmann/json
     std::ifstream conf_file("config.json");
     if (conf_file.is_open()) {
         json parsed_data;
