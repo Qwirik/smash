@@ -124,12 +124,17 @@ export default function Dashboard() {
     }
 
     try {
-      await api.post("/web/command", {
+      const resp = await api.post("/web/command", {
         device: id, // device identifier
         command: commandStr
       });
+      console.log("Command sent successfully, response:", resp.data);
     } catch (err) {
       console.error("Failed to send command", err);
+      if (err.response) {
+        console.error("Error data:", err.response.data);
+        console.error("Error status:", err.response.status);
+      }
       alert("Ошибка при отправке команды устройству.");
       // Revert optimistic update
       fetchDevices();
