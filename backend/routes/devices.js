@@ -2,8 +2,16 @@ const router = require("express").Router();
 
 router.get("/", (req, res) => {
   res.json([
-    { id: 1, name: "ESP32 Kitchen", status: "online" },
-    { id: 2, name: "ESP32 Bedroom", status: "offline" }
+    {
+      device: "ESP_LivingRoom",
+      status: "online | relay:on",
+      last_seen: "2023-10-27 10:00:00"
+    },
+    {
+      device: "ESP_Kitchen",
+      status: "online | relay:off",
+      last_seen: "2023-10-27 10:05:00"
+    }
   ]);
 });
 
