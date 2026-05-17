@@ -2,17 +2,22 @@ import { useState } from "react";
 import axios from "axios";
 
 export default function Login() {
-  const [isRegister, setIsRegister] = useState(false);
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
+  const [login, setLogin] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async () => {
-    const res = await axios.post("http://127.0.0.1:3000/api/auth/login", {
-      email
-    });
+    try {
+      const res = await axios.post("http://127.0.0.1:3000/api/auth/login", {
+        login,
+        password
+      });
 
-    localStorage.setItem("token", res.data.token);
-    window.location.href = "/";
+      localStorage.setItem("token", res.data.token);
+      window.location.href = "/";
+    } catch (err) {
+      setError(err.response?.data?.message || "Ошибка авторизации");
+    }
   };
 
   return (
@@ -32,46 +37,33 @@ export default function Login() {
         boxShadow: "0 10px 30px rgba(0,0,0,0.08)"
       }}>
         <h2 style={{ textAlign: "center", marginBottom: "25px" }}>
-          {isRegister ? "Регистрация" : "Авторизация"}
+          Авторизация
         </h2>
 
-        {isRegister && (
-          <input
-            placeholder="Имя"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            style={inputStyle}
-          />
+        {error && (
+          <div style={{ color: "red", marginBottom: "15px", textAlign: "center" }}>
+            {error}
+          </div>
         )}
 
         <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Логин"
+          value={login}
+          onChange={(e) => setLogin(e.target.value)}
+          style={inputStyle}
+        />
+
+        <input
+          placeholder="Пароль"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           style={inputStyle}
         />
 
         <button onClick={handleSubmit} style={buttonStyle}>
-          {isRegister ? "Создать аккаунт" : "Войти"}
+          Войти
         </button>
-
-        <p style={{
-          textAlign: "center",
-          marginTop: "18px",
-          color: "#666"
-        }}>
-          {isRegister ? "Уже есть аккаунт?" : "Нет аккаунта?"}{" "}
-          <span
-            onClick={() => setIsRegister(!isRegister)}
-            style={{
-              color: "#000",
-              cursor: "pointer",
-              fontWeight: "bold"
-            }}
-          >
-            {isRegister ? "Войти" : "Регистрация"}
-          </span>
-        </p>
       </div>
     </div>
   );
@@ -93,5 +85,7 @@ const buttonStyle = {
   border: "none",
   borderRadius: "12px",
   cursor: "pointer",
-  fontSize: "15px"
+  fontSize: "15px",
+  background: "#000",
+  color: "#fff"
 };

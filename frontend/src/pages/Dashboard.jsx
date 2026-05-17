@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import NavBtn from "../components/NavBtn";
+import Card from "../components/Card";
+import ProfileModal from "../components/ProfileModal";
+import { themes } from "../utils/theme";
+import { styles } from "../utils/styles";
 
 export default function Dashboard() {
   const [tab, setTab] = useState("dashboard");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [activeModal, setActiveModal] = useState(null);
 
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
@@ -304,9 +310,10 @@ export default function Dashboard() {
                       background: currentTheme.bg,
                       color: currentTheme.text
                     }}
-                    onClick={() =>
-                      alert("Раздел личных данных")
-                    }
+                    onClick={() => {
+                      setProfileOpen(false);
+                      setActiveModal("Личные данные");
+                    }}
                   >
                     Личные данные
                   </button>
@@ -317,11 +324,10 @@ export default function Dashboard() {
                       background: currentTheme.bg,
                       color: currentTheme.text
                     }}
-                    onClick={() =>
-                      alert(
-                        "Настройки безопасности"
-                      )
-                    }
+                    onClick={() => {
+                      setProfileOpen(false);
+                      setActiveModal("Безопасность");
+                    }}
                   >
                     Безопасность
                   </button>
@@ -332,11 +338,10 @@ export default function Dashboard() {
                       background: currentTheme.bg,
                       color: currentTheme.text
                     }}
-                    onClick={() =>
-                      alert(
-                        "Настройки уведомлений"
-                      )
-                    }
+                    onClick={() => {
+                      setProfileOpen(false);
+                      setActiveModal("Уведомления");
+                    }}
                   >
                     Уведомления
                   </button>
@@ -347,9 +352,10 @@ export default function Dashboard() {
                       background: currentTheme.bg,
                       color: currentTheme.text
                     }}
-                    onClick={() =>
-                      alert("История входов")
-                    }
+                    onClick={() => {
+                      setProfileOpen(false);
+                      setActiveModal("История входов");
+                    }}
                   >
                     История входов
                   </button>
@@ -781,6 +787,14 @@ export default function Dashboard() {
         </div>
       )}
 
+      {activeModal && (
+        <ProfileModal
+          title={activeModal}
+          theme={currentTheme}
+          onClose={() => setActiveModal(null)}
+        />
+      )}
+
       {(selectedDevice ||
         selectedGroup) && (
         <div
@@ -860,285 +874,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
-function NavBtn({
-  title,
-  active,
-  onClick,
-  theme
-}) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        border: "none",
-        background: "transparent",
-        color: theme.text,
-        borderBottom: active
-          ? `2px solid ${theme.accent}`
-          : "2px solid transparent",
-        cursor: "pointer",
-        paddingBottom: 5
-      }}
-    >
-      {title}
-    </button>
-  );
-}
-
-function Card({
-  title,
-  value,
-  theme
-}) {
-  return (
-    <div
-      style={{
-        ...styles.card,
-        background: theme.card
-      }}
-    >
-      <div>{title}</div>
-
-      <h2
-        style={{
-          color: theme.accent
-        }}
-      >
-        {value}
-      </h2>
-    </div>
-  );
-}
-
-const themes = {
-  light: {
-    bg: "#f5f7fb",
-    card: "#ffffff",
-    text: "#111",
-    accent: "#0066ff"
-  },
-
-  dark: {
-    bg: "#111827",
-    card: "#1f2937",
-    text: "#ffffff",
-    accent: "#8b5cf6"
-  },
-
-  neon: {
-    bg: "#060818",
-    card: "#0f172a",
-    text: "#00ffff",
-    accent: "#ff00ff"
-  }
-};
-
-const styles = {
-  page: {
-    minHeight: "100vh",
-    padding: 30,
-    transition: "0.3s"
-  },
-
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginBottom: 40
-  },
-
-  rightHeader: {
-    display: "flex",
-    gap: 30,
-    alignItems: "center"
-  },
-
-  nav: {
-    display: "flex",
-    gap: 20
-  },
-
-  avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: "50%",
-    cursor: "pointer"
-  },
-
-  profileMenu: {
-    position: "absolute",
-    right: 0,
-    top: 55,
-    width: 260,
-    padding: 20,
-    borderRadius: 20,
-    boxShadow:
-      "0 10px 30px rgba(0,0,0,0.25)",
-    zIndex: 5000,
-    display: "flex",
-    flexDirection: "column",
-    gap: 12
-  },
-
-  menuList: {
-    display: "grid",
-    gap: 10
-  },
-
-  menuBtn: {
-    border: "none",
-    padding: 14,
-    borderRadius: 12,
-    cursor: "pointer",
-    textAlign: "left",
-    transition: "0.2s",
-    fontSize: 14,
-    width: "100%"
-  },
-
-  themeBlock: {
-    display: "flex",
-    gap: 10,
-    marginTop: 10
-  },
-
-  themeBtn: {
-    flex: 1,
-    border: "none",
-    padding: 10,
-    borderRadius: 10,
-    cursor: "pointer",
-    fontWeight: "bold"
-  },
-
-  logoutBtn: {
-    width: "100%",
-    border: "none",
-    padding: 14,
-    borderRadius: 12,
-    cursor: "pointer",
-    background: "#ff4d4d",
-    color: "#fff",
-    fontWeight: "bold",
-    marginTop: 20
-  },
-
-  grid: {
-    display: "grid",
-    gridTemplateColumns:
-      "repeat(auto-fit,minmax(220px,1fr))",
-    gap: 20
-  },
-
-  card: {
-    padding: 20,
-    borderRadius: 20
-  },
-
-  formGrid: {
-    display: "grid",
-    gap: 15
-  },
-
-  input: {
-    border: "1px solid #ddd",
-    padding: 12,
-    borderRadius: 12
-  },
-
-  addBtn: {
-    border: "none",
-    padding: 12,
-    borderRadius: 12,
-    cursor: "pointer",
-    background: "#0066ff",
-    color: "#fff"
-  },
-
-  cancelBtn: {
-    border: "none",
-    padding: 12,
-    borderRadius: 12,
-    cursor: "pointer"
-  },
-
-  deviceCard: {
-    padding: 20,
-    borderRadius: 20,
-    marginBottom: 15,
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center"
-  },
-
-  toggleBtn: {
-    border: "none",
-    color: "#fff",
-    padding: "12px 18px",
-    borderRadius: 12,
-    cursor: "pointer",
-    fontWeight: "bold"
-  },
-
-  checkboxRow: {
-    display: "flex",
-    gap: 10,
-    marginBottom: 10,
-    alignItems: "center"
-  },
-
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    background:
-      "rgba(0,0,0,0.4)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 5000
-  },
-
-  modal: {
-    width: 400,
-    borderRadius: 20,
-    padding: 25
-  },
-
-  modalButtons: {
-    display: "flex",
-    gap: 10,
-    marginTop: 20
-  },
-
-  drawer: {
-    position: "fixed",
-    top: 0,
-    right: 0,
-    width: 400,
-    height: "100%",
-    padding: 30,
-    transition: "0.4s",
-    zIndex: 4000,
-    boxShadow:
-      "-5px 0 30px rgba(0,0,0,0.2)"
-  },
-
-  drawerHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center"
-  },
-
-  closeBtn: {
-    border: "none",
-    background: "transparent",
-    fontSize: 22,
-    cursor: "pointer"
-  },
-
-  drawerContent: {
-    marginTop: 30,
-    display: "grid",
-    gap: 20
-  }
-};
