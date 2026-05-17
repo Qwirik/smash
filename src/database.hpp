@@ -26,8 +26,11 @@ public:
 
     void check_heartbeats();
     void process_rules();
+    void process_time_rules();
+    void add_time_rule(const std::string& name, const std::string& time_cron, const std::string& action_dev, const std::string& action_cmd);
+    void register_device(const std::string& device_id, const std::string& device_type);
     
-    // Работа с правилами
+    // Rule management
     void add_rule(const std::string& name, const std::string& t_dev, const std::string& cond, double val, const std::string& a_dev, const std::string& a_cmd);
     void list_rules();
     void delete_rule(const std::string& name);

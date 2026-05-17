@@ -6,10 +6,10 @@
 
 class ConfigManager {
 public:
-    // Главная функция: проверяет файлы и загружает данные
+    // Main function: checks files and loads data
     static void init();
 
-    // Получение настроек
+    // Get settings
     static std::string getEnv(const std::string& key, const std::string& default_val = "");
     static std::string getConfig(const std::string& key, const std::string& default_val = "");
 

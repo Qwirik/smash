@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(SmashCore VERSION 0.1.0 LANGUAGES CXX)
 
 # Настройки стандарта C++
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 1. Поиск системных зависимостей
@@ -14,7 +14,7 @@ pkg_check_modules(PQXX REQUIRED libpqxx)
 cmake_minimum_required(VERSION 3.10)
 project(SmashCore VERSION 0.1.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 1. Системные пакеты
@@ -32,9 +32,11 @@ set(SOURCES
     src/database.cpp
     src/config_manager.cpp
     src/api_router.cpp
+    src/cli.cpp
 )
 
 # 4. Цель сборки
+add_compile_options(-Wno-deprecated-declarations)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # 5. Инклюды
