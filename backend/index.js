@@ -4,14 +4,23 @@ const WebSocket = require("ws");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  allowedHeaders: ["Content-Type", "X-API-Key"]
+}));
 app.use(express.json());
 
 // Simple middleware to check API Key
 app.use((req, res, next) => {
   if (req.path.startsWith("/api/web")) {
+    // Allow preflight requests
+    if (req.method === "OPTIONS") {
+      return next();
+    }
+
     const apiKey = req.headers["x-api-key"];
     if (apiKey !== "admin123") {
+      console.log(`Unauthorized access attempt with key: ${apiKey}`);
       return res.status(401).json({ message: "Unauthorized" });
     }
   }

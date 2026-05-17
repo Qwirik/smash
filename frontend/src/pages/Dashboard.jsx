@@ -67,7 +67,7 @@ export default function Dashboard() {
           return {
             id: d.device || index, // Use device string as ID
             name: d.device,
-            room: "N/A", // SmashCore doesn't provide room info by default
+            room: d.room || "N/A",
             status: isRelayOn, // Treat relay:on as true, otherwise false
             activity: d.last_seen || "Неизвестно"
           };
