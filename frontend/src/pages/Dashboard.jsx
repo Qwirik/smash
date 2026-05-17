@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import NavBtn from "../components/NavBtn";
 import Card from "../components/Card";
 import ProfileModal from "../components/ProfileModal";
@@ -58,46 +58,57 @@ export default function Dashboard() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  useEffect(() => {
-    axios
-      .get("http://127.0.0.1:3000/api/devices")
-      .then((res) => setDevices(res.data))
-      .catch(() => {
+  const fetchDevices = () => {
+    api
+      .get("/web/devices")
+      .then((res) => {
+        const mappedDevices = res.data.map((d, index) => {
+          const isRelayOn = d.status && d.status.includes("relay:on");
+          return {
+            id: d.device || index, // Use device string as ID
+            name: d.device,
+            room: "N/A", // SmashCore doesn't provide room info by default
+            status: isRelayOn, // Treat relay:on as true, otherwise false
+            activity: d.last_seen || "Неизвестно"
+          };
+        });
+        setDevices(mappedDevices);
+      })
+      .catch((err) => {
+        console.error("Ошибка при получении устройств с SmashCore:", err);
+        // Fallback data if backend is not running yet
         setDevices([
           {
-            id: 1,
-            name: "Лампа",
-            room: "Кухня",
-            status: true,
-            activity: "18:42"
-          },
-          {
-            id: 2,
-            name: "Кондиционер",
-            room: "Спальня",
-            status: false,
-            activity: "17:15"
-          },
-          {
-            id: 3,
-            name: "Камера",
+            id: "ESP_LivingRoom",
+            name: "ESP_LivingRoom",
             room: "Гостиная",
             status: true,
-            activity: "19:01"
+            activity: "2023-10-27 10:00:00"
           }
         ]);
       });
+  };
+
+  useEffect(() => {
+    fetchDevices();
   }, []);
 
   const currentTheme = themes[theme];
 
-  const toggleDevice = (id) => {
+  const toggleDevice = async (id) => {
+    const deviceToToggle = devices.find(d => d.id === id);
+    if (!deviceToToggle) return;
+
+    const newStatus = !deviceToToggle.status;
+    const commandStr = newStatus ? "relay_on" : "relay_off";
+
+    // Optimistic update
     setDevices((prev) =>
       prev.map((device) =>
         device.id === id
           ? {
               ...device,
-              status: !device.status,
+              status: newStatus,
               activity: "Только что"
             }
           : device
@@ -107,9 +118,21 @@ export default function Dashboard() {
     if (selectedDevice?.id === id) {
       setSelectedDevice((prev) => ({
         ...prev,
-        status: !prev.status,
+        status: newStatus,
         activity: "Только что"
       }));
+    }
+
+    try {
+      await api.post("/web/command", {
+        device: id, // device identifier
+        command: commandStr
+      });
+    } catch (err) {
+      console.error("Failed to send command", err);
+      alert("Ошибка при отправке команды устройству.");
+      // Revert optimistic update
+      fetchDevices();
     }
   };
 

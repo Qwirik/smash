@@ -1,22 +1,26 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 
 export default function Login() {
-  const [login, setLogin] = useState("");
-  const [password, setPassword] = useState("");
+  const [apiKey, setApiKey] = useState("");
   const [error, setError] = useState("");
 
   const handleSubmit = async () => {
     try {
-      const res = await axios.post("http://127.0.0.1:3000/api/auth/login", {
-        login,
-        password
+      // Чтобы проверить правильность X-API-Key, попробуем запросить список устройств.
+      // Если вернется 401 Unauthorized, значит ключ неверен.
+      await api.get("/web/devices", {
+        headers: {
+          "X-API-Key": apiKey
+        }
       });
 
-      localStorage.setItem("token", res.data.token);
+      // Сохраняем как token для interceptor-а (см. utils/api.js)
+      localStorage.setItem("token", apiKey);
       window.location.href = "/";
     } catch (err) {
-      setError(err.response?.data?.message || "Ошибка авторизации");
+      console.error(err);
+      setError("Неверный API Ключ или сервер недоступен");
     }
   };
 
@@ -47,17 +51,10 @@ export default function Login() {
         )}
 
         <input
-          placeholder="Логин"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
-          style={inputStyle}
-        />
-
-        <input
-          placeholder="Пароль"
+          placeholder="API Ключ (Напр. admin123)"
           type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
           style={inputStyle}
         />
 
