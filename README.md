@@ -1,4 +1,4 @@
-# SmashCore 0.1 🚀
+# SmashCore 0.2 🚀
 
 **SmashCore** is a high-performance C++ backend for smart home systems. Built with modern C++20, PostgreSQL, and Crow microframework, it provides a robust platform for collecting telemetry from IoT devices (like ESP32), queueing commands, and running both trigger-based and time-based automation rules.
 
