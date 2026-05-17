@@ -1,9 +1,10 @@
 import axios from "axios";
 
 const api = axios.create({
-  // Используем относительный путь для проксирования через Vite
-  // или если в продакшене, то VITE_API_URL
-  baseURL: import.meta.env.DEV ? "/api" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8080/api"),
+  // Строго используем относительный путь, чтобы CORS не срабатывал.
+  // Vite Dev Server будет проксировать это на 8080.
+  // В Production (nginx) запросы на /api также нужно будет проксировать на 8080.
+  baseURL: "/api",
   headers: {
     "Content-Type": "application/json",
   },
