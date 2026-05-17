@@ -1,9 +1,0 @@
-
-> frontend@0.0.0 dev
-> vite
-
-
-  VITE v8.0.9  ready in 312 ms
-
-  ➜  Local:   http://127.0.0.1:5173/
-11:27:34 AM [vite] (client) hmr update /src/components/Card.jsx
