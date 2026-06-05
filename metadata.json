@@ -1,0 +1,6 @@
+{
+  "name": "SmashCore Smart Home",
+  "description": "Премиальная панель управления Умным домом с интеграцией SmashCore C++ бэкенда",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
