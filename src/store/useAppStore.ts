@@ -187,7 +187,7 @@ export const useAppStore = create<AppState>()(
 
       // Network Initial State
       serverUrl: 'http://localhost:8080',
-      apiKey: '',
+      apiKey: 'admin123',
       setNetwork: (url, key) => set({ serverUrl: url, apiKey: key }),
 
       // Theme Initial State (Customizable via settings)

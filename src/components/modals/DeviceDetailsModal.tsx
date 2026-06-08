@@ -49,7 +49,7 @@ export function DeviceDetailsModal({ device, onClose, onStateChange }: DeviceDet
       await sendCommand(device.name, `${cmdType}${value}`);
       onStateChange();
     } catch (err) {
-      // Ignored: dynamic mock already handled
+      // Ignored: error handled by interceptor
     }
   };
 

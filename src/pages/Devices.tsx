@@ -81,7 +81,7 @@ export function Devices({ searchQuery }: DevicesProps) {
         addToast(`Передана команда переключения: "${device.name}"`, 'success');
       }
     } catch (err) {
-      // Revert if error occurs — though our mock endpoint catches and acts as offline success
+      // Revert if error occurs
     }
   };
 
