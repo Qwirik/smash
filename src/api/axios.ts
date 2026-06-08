@@ -38,20 +38,24 @@ api.interceptors.response.use(
     const { addToast } = useAppStore.getState();
     let errorMsg = 'Ошибка соединения с бэкендом SmashCore';
 
+    const requestUrl = error.config?.url || '';
+    const baseURL = error.config?.baseURL || '';
+    const fullUrl = `${baseURL}${requestUrl}`;
+
     if (error.response) {
       const status = error.response.status;
       const serverDetails = error.response.data?.message || '';
 
       if (status === 401 || status === 403) {
-        errorMsg = 'Неверный API-ключ или доступ заблокирован';
+        errorMsg = `Неверный API-ключ или доступ заблокирован [${status}]`;
       } else if (status === 404) {
-        errorMsg = `Ресурс не найден (404): ${errorMsg}`;
+        errorMsg = `Ресурс не найден (404): ${fullUrl}`;
       } else {
-        errorMsg = `Ошибка сервера (${status}): ${serverDetails || 'Внутренняя неисправность'}`;
+        errorMsg = `Ошибка сервера (${status}): ${serverDetails || error.message}`;
       }
     } else if (error.request) {
       // No response received (Timeout or CORS restriction or socket down)
-      errorMsg = 'Ошибка соединения: Нет ответа от SmashCore сервера. Проверьте URL сети!';
+      errorMsg = `Ошибка соединения (${error.message}): Сервер недоступен по адресу ${fullUrl}`;
     } else {
       errorMsg = `Критическая ошибка: ${error.message}`;
     }
