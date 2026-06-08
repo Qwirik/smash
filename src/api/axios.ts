@@ -9,7 +9,13 @@ api.interceptors.request.use(
     const { serverUrl, apiKey } = useAppStore.getState();
 
     // Clean up trailing slash and bind baseline configuration
-    const normalizedUrl = serverUrl.replace(/\/+$/, '');
+    let normalizedUrl = serverUrl.replace(/\/+$/, '');
+
+    // Ensure protocol is present
+    if (normalizedUrl && !/^https?:\/\//i.test(normalizedUrl)) {
+      normalizedUrl = `http://${normalizedUrl}`;
+    }
+
     config.baseURL = normalizedUrl;
 
     // Attach SmashCore API key
