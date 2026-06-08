@@ -9,17 +9,18 @@ api.interceptors.request.use(
     const { serverUrl, apiKey } = useAppStore.getState();
 
     // Clean up trailing slash and bind baseline configuration
-    let normalizedUrl = serverUrl.replace(/\/+$/, '');
+    let normalizedUrl = serverUrl.trim().replace(/\/+$/, '');
 
-    // Ensure protocol is present
-    if (normalizedUrl && !/^https?:\/\//i.test(normalizedUrl)) {
+    // Ensure protocol is present and it's not a relative path
+    if (normalizedUrl && !normalizedUrl.startsWith('/') && !/^https?:\/\//i.test(normalizedUrl)) {
       normalizedUrl = `http://${normalizedUrl}`;
     }
 
     config.baseURL = normalizedUrl;
 
-    // Attach SmashCore API key
-    if (apiKey) {
+    // Attach SmashCore API key ONLY for non-GET requests to prevent CORS preflight OPTIONS
+    // requests on simple GET endpoints (like /api/web/devices) which the C++ backend does not support.
+    if (apiKey && config.method && config.method.toUpperCase() !== 'GET') {
       config.headers['X-API-Key'] = apiKey;
     }
 
