@@ -108,3 +108,23 @@ Send a command to a device from the web dashboard.
 ```
 
 **Response:** `200 OK` ("Queued") or `401 Unauthorized`.
+
+### `POST /api/process`
+Process text and/or file data by passing it to an external AI processor script. The script can return either a file or a command to be executed.
+**Requires Authentication (`X-API-Key`).**
+
+**Request:** `multipart/form-data`
+- `text`: (Optional) Text data to process.
+- `file`: (Optional) File to process.
+
+**Response:**
+- If the script returns a file: The file content is returned with an appropriate `Content-Type`.
+- If the script returns a command: JSON response indicating the command was queued.
+  ```json
+  {
+    "status": "command_queued",
+    "device": "ESP_LivingRoom",
+    "command": "relay_on"
+  }
+  ```
+- `500 Internal Server Error` on failure.

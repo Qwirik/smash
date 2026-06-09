@@ -27,6 +27,7 @@ void ConfigManager::init() {
         std::ofstream new_env(".env");
         new_env << "DATABASE_URL=postgresql://qwirik:smash_password@localhost/smashcore\n";
         new_env << "MASTER_API_KEY=admin123\n";
+        new_env << "AI_PROCESSOR_CMD=\n";
         new_env.close();
     }
 
@@ -46,7 +47,10 @@ void ConfigManager::init() {
     if (!std::filesystem::exists("config.json")) {
         spdlog::warn("config.json not found! Generating default config.json...");
         std::ofstream new_conf("config.json");
-        json default_conf = {{"server_port", 8080}};
+        json default_conf = {
+            {"server_port", 8080},
+            {"ai_processor_cmd", ""}
+        };
         new_conf << default_conf.dump(4);
         new_conf.close();
     }
@@ -59,6 +63,9 @@ void ConfigManager::init() {
             if (parsed_data.contains("server_port")) {
                 int port = parsed_data["server_port"];
                 config_cache["server_port"] = std::to_string(port);
+            }
+            if (parsed_data.contains("ai_processor_cmd")) {
+                config_cache["ai_processor_cmd"] = parsed_data["ai_processor_cmd"].get<std::string>();
             }
         } catch (...) {}
         conf_file.close();
