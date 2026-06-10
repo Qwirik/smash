@@ -8,15 +8,24 @@ api.interceptors.request.use(
   (config) => {
     const { serverUrl, apiKey } = useAppStore.getState();
 
-    // Ensure the URL has a protocol and ends with a slash for relative path resolution
+    // If serverUrl contains port 8080 or is empty, we force it to use the local Vite proxy
+    // by setting baseURL to an empty string (which resolves to the current window location).
+    // This bypasses the CORS issue by routing through the Vite dev server proxy.
     let normalizedUrl = serverUrl.trim();
-    if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
-      normalizedUrl = 'http://' + normalizedUrl;
+
+    // Auto-detect and override to proxy if user entered the backend address directly
+    if (normalizedUrl === '' || normalizedUrl.includes(':8080')) {
+      config.baseURL = '/'; // Resolves to current Vite host e.g. http://192.168.1.88:3000/
+    } else {
+      // Normal external backend connection
+      if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+        normalizedUrl = 'http://' + normalizedUrl;
+      }
+      if (!normalizedUrl.endsWith('/')) {
+        normalizedUrl += '/';
+      }
+      config.baseURL = normalizedUrl;
     }
-    if (!normalizedUrl.endsWith('/')) {
-      normalizedUrl += '/';
-    }
-    config.baseURL = normalizedUrl;
 
     // Attach SmashCore API key
     if (apiKey) {
