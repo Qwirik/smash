@@ -1,0 +1,16 @@
+# Папки сборки
+build/
+.cache/
+
+# Файлы конфигурации и секреты
+.env
+config.json
+config.txt
+sensor_readings.csv
+
+# Локальные файлы CMake и IDE
+CMakeCache.txt
+CMakeFiles/
+compile_commands.json
+*.o
+*.a

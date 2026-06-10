@@ -1,0 +1,168 @@
+openapi: 3.0.0
+info:
+  title: SmashCore API
+  description: API documentation for SmashCore smart home server.
+  version: 0.1.0
+servers:
+  - url: http://localhost:8080
+    description: Local server
+paths:
+  /api/data:
+    post:
+      summary: Receive sensor data from hardware
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                device:
+                  type: string
+                  example: "ESP_LivingRoom"
+                sensors:
+                  type: object
+                  properties:
+                    temp:
+                      type: number
+                      example: 24.5
+                    hum:
+                      type: number
+                      example: 45.0
+      responses:
+        '200':
+          description: Data successfully received
+        '400':
+          description: Invalid request format
+
+  /api/command/{id}:
+    get:
+      summary: Poll command queue (Long polling)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Device ID
+      responses:
+        '200':
+          description: Returns pending command
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  command:
+                    type: string
+                    example: "relay_on"
+
+  /api/ack:
+    post:
+      summary: Confirm execution of a command
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                device:
+                  type: string
+                  example: "ESP_LivingRoom"
+                state:
+                  type: string
+                  example: "relay:on"
+      responses:
+        '200':
+          description: Acknowledged successfully
+        '400':
+          description: Invalid request format
+
+  /api/register:
+    post:
+      summary: Convenient registration for new devices
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                device:
+                  type: string
+                  example: "New_Sensor_Node"
+                type:
+                  type: string
+                  example: "temperature_sensor"
+      responses:
+        '200':
+          description: Device registered
+        '400':
+          description: Invalid format
+
+  /api/web/devices:
+    get:
+      summary: List all devices and their statuses
+      responses:
+        '200':
+          description: Array of devices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    device:
+                      type: string
+                    status:
+                      type: string
+                    last_seen:
+                      type: string
+
+  /api/web/history/{id}:
+    get:
+      summary: Get historical data for a specific device
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of historical sensor readings
+
+  /api/web/command:
+    post:
+      summary: Queue a command for a device via Web
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                device:
+                  type: string
+                  example: "ESP_LivingRoom"
+                command:
+                  type: string
+                  example: "relay_on"
+      responses:
+        '200':
+          description: Command queued
+        '401':
+          description: Unauthorized
+        '400':
+          description: Bad request
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
