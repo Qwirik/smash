@@ -74,10 +74,13 @@ export function EspConnector() {
         getEspStatus(),
         getEspGpios()
       ]);
-      setStatus(statusData);
-      setGpios(gpioData);
+      // Ensure we don't save vite html fallbacks
+      setStatus(typeof statusData === 'object' && !Array.isArray(statusData) && statusData !== null && 'firmwareVersion' in statusData ? statusData : null);
+      setGpios(Array.isArray(gpioData) ? gpioData : []);
     } catch (err) {
       // Graceful fallback
+      setStatus(null);
+      setGpios([]);
     } finally {
       if (initial) {
         setLoadingStatus(false);
@@ -117,10 +120,12 @@ export function EspConnector() {
     addLog('REST', `ОТПРАВКА >> GET ${serverUrl}/api/wifi/scan`, 'info');
     try {
       const scanned = await scanEspWifi();
-      setNetworks(scanned);
-      addLog('SYS', `Радиоэфир отсканирован. Найдено ${scanned.length} Wi-Fi сетей`, 'success');
+      const validNetworks = Array.isArray(scanned) ? scanned : [];
+      setNetworks(validNetworks);
+      addLog('SYS', `Радиоэфир отсканирован. Найдено ${validNetworks.length} Wi-Fi сетей`, 'success');
       addToast('Список Wi-Fi сетей обновлен', 'success');
     } catch (err) {
+      setNetworks([]);
       addLog('REST', `ОШИБКА HTTP >> Не получено ответа от GET /api/wifi/scan`, 'warn');
     } finally {
       setScanningWifi(false);
@@ -320,7 +325,7 @@ export function EspConnector() {
                 <div className="bg-brand-input/40 border border-brand-border p-3 rounded text-center flex flex-col justify-between min-h-[90px]">
                   <span className="text-[9px] text-brand-muted uppercase font-black tracking-wider block">Версия Пошивки</span>
                   <span className="text-xs font-mono font-bold block mt-1.5 truncate text-slate-300">
-                    {status?.firmwareVersion.substring(0, 14)}..
+                    {status?.firmwareVersion?.substring(0, 14)}..
                   </span>
                   <span className="text-[8px] bg-emerald-500/15 border border-emerald-500/20 text-emerald-400 py-0.5 px-1.5 rounded inline-block self-center mt-1">
                     C++ Native
