@@ -77,9 +77,10 @@ export function ScenarioEditModal({ isOpen, onClose, scenarioId }: ScenarioEditM
     async function load() {
       try {
         const list = await getDevices();
-        setDevices(list);
+        setDevices(Array.isArray(list) ? list : []);
       } catch (err) {
         console.error('Failed to load devices for editing modal', err);
+        setDevices([]);
       } finally {
         setLoadingDevices(false);
       }

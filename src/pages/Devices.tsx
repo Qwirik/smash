@@ -47,7 +47,7 @@ export function Devices({ searchQuery }: DevicesProps) {
     if (showLoader) setLoading(true);
     try {
       const data = await getDevices();
-      setDevices(data || []);
+      setDevices(Array.isArray(data) ? data : []);
     } catch (err) {
       // Handled gracefully
       setDevices([]);

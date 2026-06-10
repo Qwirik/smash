@@ -36,7 +36,7 @@ export function Rooms() {
     const fetchDevicesList = async () => {
       try {
         const data = await getDevices();
-        setAllDevices(data || []);
+        setAllDevices(Array.isArray(data) ? data : []);
       } catch (err) {
         // Fallback or silent error representation
         setAllDevices([]);

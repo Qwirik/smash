@@ -32,9 +32,9 @@ export function RoomDetailsDrawer({ roomId, onClose }: RoomDetailsDrawerProps) {
       setLoading(true);
       getDevices()
         .then((data) => {
-          setAllDevices(data);
+          setAllDevices(Array.isArray(data) ? data : []);
         })
-        .catch(() => {})
+        .catch(() => setAllDevices([]))
         .finally(() => setLoading(false));
     }
   }, [roomId, rooms]); // Reload if room devices mapping changes

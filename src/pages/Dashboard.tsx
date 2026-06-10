@@ -169,7 +169,7 @@ export function Dashboard() {
   useEffect(() => {
     setFavLoading(true);
     getDevices()
-      .then((data) => setFavoriteDevices(data || []))
+      .then((data) => setFavoriteDevices(Array.isArray(data) ? data : []))
       .catch(() => setFavoriteDevices([]))
       .finally(() => setFavLoading(false));
   }, []);
