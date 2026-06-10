@@ -31,7 +31,7 @@ function inferDeviceType(name: string): 'light' | 'climate' | 'security' {
 
 // Fetch list of devices
 export async function getDevices(): Promise<Device[]> {
-  const response = await api.get<RawServerDevice[]>('/api/web/devices');
+  const response = await api.get<RawServerDevice[]>('api/web/devices');
   const rawData = response.data;
 
   if (!Array.isArray(rawData)) {
@@ -51,7 +51,7 @@ export async function getDevices(): Promise<Device[]> {
 
 // Single Command sender
 export async function sendCommand(device: string, command: string): Promise<{ success: boolean; message?: string }> {
-  const response = await api.post<{ success: boolean; message?: string }>('/api/web/command', {
+  const response = await api.post<{ success: boolean; message?: string }>('api/web/command', {
     device,
     command,
   });
@@ -60,7 +60,7 @@ export async function sendCommand(device: string, command: string): Promise<{ su
 
 // Fetch historical charts
 export async function getDeviceHistory(deviceId: string): Promise<HistoryDataPoint[]> {
-  const response = await api.get<HistoryDataPoint[]>(`/api/web/history/${deviceId}`);
+  const response = await api.get<HistoryDataPoint[]>(`api/web/history/${deviceId}`);
   return response.data;
 }
 
@@ -83,13 +83,13 @@ export interface TimerParams {
 
 // POST /api/web/rules - Создание триггерного правила
 export async function createRule(rule: RuleParams): Promise<{ success: boolean; message?: string }> {
-  const response = await api.post<{ success: boolean; message?: string }>('/api/web/rules', rule);
+  const response = await api.post<{ success: boolean; message?: string }>('api/web/rules', rule);
   return response.data;
 }
 
 // POST /api/web/timers - Создание автоматизации по таймеру
 export async function createTimer(timer: TimerParams): Promise<{ success: boolean; message?: string }> {
-  const response = await api.post<{ success: boolean; message?: string }>('/api/web/timers', timer);
+  const response = await api.post<{ success: boolean; message?: string }>('api/web/timers', timer);
   return response.data;
 }
 
@@ -128,43 +128,43 @@ export interface WifiNetwork {
 
 // Telemetry status of active ESP
 export async function getEspStatus(): Promise<EspStatus> {
-  const response = await api.get<EspStatus>('/api/status');
+  const response = await api.get<EspStatus>('api/status');
   return response.data;
 }
 
 // GPIO Pin-by-pin settings of ESP
 export async function getEspGpios(): Promise<EspGpio[]> {
-  const response = await api.get<EspGpio[]>('/api/gpios');
+  const response = await api.get<EspGpio[]>('api/gpios');
   return response.data;
 }
 
 // Single GPIO update command
 export async function updateEspGpio(pin: number, mode: 'INPUT' | 'OUTPUT' | 'INPUT_PULLUP' | 'PWM' | 'ANALOG', value: number): Promise<{ success: boolean; message?: string }> {
-  const response = await api.post<{ success: boolean; message?: string }>('/api/gpios', { pin, mode, value });
+  const response = await api.post<{ success: boolean; message?: string }>('api/gpios', { pin, mode, value });
   return response.data;
 }
 
 // Scan wifi networks
 export async function scanEspWifi(): Promise<WifiNetwork[]> {
-  const response = await api.get<WifiNetwork[]>('/api/wifi/scan');
+  const response = await api.get<WifiNetwork[]>('api/wifi/scan');
   return response.data;
 }
 
 // Save config ssid
 export async function saveEspWifiConfig(ssid: string, pass: string): Promise<{ success: boolean; message?: string }> {
-  const response = await api.post<{ success: boolean; message?: string }>('/api/wifi/config', { ssid, pass });
+  const response = await api.post<{ success: boolean; message?: string }>('api/wifi/config', { ssid, pass });
   return response.data;
 }
 
 // Reboot device
 export async function rebootEsp(): Promise<{ success: boolean; message?: string }> {
-  const response = await api.post<{ success: boolean; message?: string }>('/api/reboot');
+  const response = await api.post<{ success: boolean; message?: string }>('api/reboot');
   return response.data;
 }
 
 // Sync Rules directly to ESP LittleFS ROM
 export async function syncEspRules(rules: any[]): Promise<{ success: boolean; totalBytes: number; message?: string }> {
-  const response = await api.post<{ success: boolean; totalBytes: number; message?: string }>('/api/rules/sync', { rules });
+  const response = await api.post<{ success: boolean; totalBytes: number; message?: string }>('api/rules/sync', { rules });
   return response.data;
 }
 

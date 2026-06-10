@@ -8,8 +8,14 @@ api.interceptors.request.use(
   (config) => {
     const { serverUrl, apiKey } = useAppStore.getState();
 
-    // Clean up trailing slash and bind baseline configuration
-    const normalizedUrl = serverUrl.replace(/\/+$/, '');
+    // Ensure the URL has a protocol and ends with a slash for relative path resolution
+    let normalizedUrl = serverUrl.trim();
+    if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+      normalizedUrl = 'http://' + normalizedUrl;
+    }
+    if (!normalizedUrl.endsWith('/')) {
+      normalizedUrl += '/';
+    }
     config.baseURL = normalizedUrl;
 
     // Attach SmashCore API key
@@ -26,7 +32,17 @@ api.interceptors.request.use(
 
 // Response Interceptor: Global interception and user notice translation
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Detect if the server incorrectly returned HTML instead of JSON
+    if (typeof response.data === 'string' && response.data.trim().toLowerCase().startsWith('<!doctype html>')) {
+      const errorMsg = 'Сервер вернул HTML-страницу вместо JSON. Проверьте правильность порта бэкенда (например, :8080 вместо :3000)';
+      useAppStore.getState().addToast(errorMsg, 'error');
+      // Replace data to prevent frontend crashes downstream
+      response.data = [];
+      return Promise.reject(new Error(errorMsg));
+    }
+    return response;
+  },
   (error) => {
     const { addToast } = useAppStore.getState();
     let errorMsg = 'Ошибка соединения с бэкендом SmashCore';
