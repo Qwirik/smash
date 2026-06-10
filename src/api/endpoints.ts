@@ -15,10 +15,38 @@ export interface HistoryDataPoint {
   value: number;
 }
 
+export interface RawServerDevice {
+  device: string;
+  last_seen: string;
+  status: string; // "offline" or "online"
+}
+
+// Helper to infer device type from its raw name
+function inferDeviceType(name: string): 'light' | 'climate' | 'security' {
+  const lower = name.toLowerCase();
+  if (lower.includes('climate') || lower.includes('temp') || lower.includes('fan') || lower.includes('heater') || lower.includes('sensor')) return 'climate';
+  if (lower.includes('security') || lower.includes('cam') || lower.includes('motion') || lower.includes('door') || lower.includes('relay')) return 'security';
+  return 'light'; // Default to light if unknown
+}
+
 // Fetch list of devices
 export async function getDevices(): Promise<Device[]> {
-  const response = await api.get<Device[]>('/api/web/devices');
-  return response.data;
+  const response = await api.get<RawServerDevice[]>('/api/web/devices');
+  const rawData = response.data;
+
+  if (!Array.isArray(rawData)) {
+    return [];
+  }
+
+  // Map the backend's narrow JSON into the rich object the frontend expects
+  return rawData.map((d) => ({
+    id: d.device,
+    name: d.device.replace(/_/g, ' '), // Prettify name
+    location: 'Дом', // Fallback location since backend doesn't provide it
+    type: inferDeviceType(d.device),
+    status: d.status === 'online', // "offline" means false
+    value: 0, // Fallback since backend doesn't provide it
+  }));
 }
 
 // Single Command sender

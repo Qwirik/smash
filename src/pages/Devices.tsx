@@ -108,13 +108,15 @@ export function Devices({ searchQuery }: DevicesProps) {
 
   // Filters items matches
   const filteredDevices = devices.filter((device) => {
+    if (!device) return false;
+
     if (activeFilter !== 'all' && device.type !== activeFilter) {
       return false;
     }
     if (searchQuery.trim() !== '') {
       const search = searchQuery.toLowerCase();
-      const matchName = device.name.toLowerCase().includes(search);
-      const matchLoc = device.location.toLowerCase().includes(search);
+      const matchName = (device.name || '').toLowerCase().includes(search);
+      const matchLoc = (device.location || '').toLowerCase().includes(search);
       return matchName || matchLoc;
     }
     return true;
