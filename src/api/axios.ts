@@ -45,28 +45,31 @@ api.interceptors.response.use(
   },
   (error) => {
     const { addToast } = useAppStore.getState();
-    let errorMsg = 'Ошибка соединения с бэкендом SmashCore';
 
-    if (error.response) {
-      const status = error.response.status;
-      const serverDetails = error.response.data?.message || '';
+    // Construct a highly detailed error message for debugging
+    let detailedMsg = `[AXIOS ERROR] ${error.message}\n`;
 
-      if (status === 401 || status === 403) {
-        errorMsg = 'Неверный API-ключ или доступ заблокирован';
-      } else if (status === 404) {
-        errorMsg = `Ресурс не найден (404): ${errorMsg}`;
-      } else {
-        errorMsg = `Ошибка сервера (${status}): ${serverDetails || 'Внутренняя неисправность'}`;
-      }
-    } else if (error.request) {
-      // No response received (Timeout or CORS restriction or socket down)
-      errorMsg = 'Ошибка соединения: Нет ответа от SmashCore сервера. Проверьте URL сети!';
-    } else {
-      errorMsg = `Критическая ошибка: ${error.message}`;
+    if (error.config && error.config.url) {
+      detailedMsg += `URL: ${error.config.baseURL || ''}${error.config.url}\n`;
+      detailedMsg += `Method: ${error.config.method?.toUpperCase()}\n`;
     }
 
-    // Fire the automatic self-cleaning toast in russian
-    addToast(errorMsg, 'error');
+    if (error.response) {
+      detailedMsg += `Status: ${error.response.status} ${error.response.statusText}\n`;
+      const dataStr = typeof error.response.data === 'object' ? JSON.stringify(error.response.data) : String(error.response.data).substring(0, 100);
+      detailedMsg += `Data: ${dataStr}\n`;
+    } else if (error.request) {
+      detailedMsg += 'No response received from server (Possible CORS issue or server down).\n';
+    }
+
+    // Output to console for easy copying by developer
+    console.error("=== DETAILED API ERROR ===");
+    console.error(detailedMsg);
+    console.error(error);
+    console.error("==========================");
+
+    // Fire the toast with full details
+    addToast(detailedMsg, 'error');
 
     return Promise.reject(error);
   }

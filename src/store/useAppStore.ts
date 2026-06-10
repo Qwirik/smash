@@ -354,7 +354,7 @@ export const useAppStore = create<AppState>()(
           set((state) => ({
             toasts: state.toasts.filter((t) => t.id !== id),
           }));
-        }, 4000);
+        }, 20000);
       },
       removeToast: (id) =>
         set((state) => ({
