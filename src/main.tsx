@@ -1,3 +1,6 @@
+declare global {
+  interface Window { hasShownDebugToast?: boolean; }
+}
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';

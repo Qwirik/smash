@@ -30,16 +30,33 @@ function inferDeviceType(name: string): 'light' | 'climate' | 'security' {
 }
 
 // Fetch list of devices
+import { useAppStore } from '../store/useAppStore';
+
 export async function getDevices(): Promise<Device[]> {
-  const response = await api.get<RawServerDevice[]>('api/web/devices');
+  const response = await api.get<any>('api/web/devices');
   const rawData = response.data;
 
-  if (!Array.isArray(rawData)) {
+  // DEBUG TOOL: Show exactly what the server returned
+  if (!window.hasShownDebugToast) {
+    const rawString = typeof rawData === 'object' ? JSON.stringify(rawData) : String(rawData);
+    useAppStore.getState().addToast('RAW DEVICE DATA: ' + rawString.substring(0, 150), 'info');
+    window.hasShownDebugToast = true;
+  }
+
+  // Try to unwrap if the array is hidden inside a property
+  let deviceArray = rawData;
+  if (rawData && typeof rawData === 'object' && !Array.isArray(rawData)) {
+     if (Array.isArray(rawData.devices)) deviceArray = rawData.devices;
+     else if (Array.isArray(rawData.data)) deviceArray = rawData.data;
+     else if (Array.isArray(rawData.result)) deviceArray = rawData.result;
+  }
+
+  if (!Array.isArray(deviceArray)) {
     return [];
   }
 
   // Map the backend's narrow JSON into the rich object the frontend expects
-  return rawData.map((d) => ({
+  return deviceArray.map((d: any) => ({
     id: d.device,
     name: d.device.replace(/_/g, ' '), // Prettify name
     location: 'Дом', // Fallback location since backend doesn't provide it
