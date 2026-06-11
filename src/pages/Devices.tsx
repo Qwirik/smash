@@ -77,7 +77,8 @@ export function Devices({ searchQuery }: DevicesProps) {
     );
 
     try {
-      const result = await sendCommand(device.name, `toggle_${device.name}`);
+      const stateCmd = checked ? 'relay:on' : 'relay:off';
+      const result = await sendCommand(device.name, stateCmd);
       if (result.success) {
         addToast(`Передана команда переключения: "${device.name}"`, 'success');
       }

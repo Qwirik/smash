@@ -44,7 +44,7 @@ export function DeviceDetailsModal({ device, onClose, onStateChange }: DeviceDet
   const handleSliderChange = async (value: number) => {
     setSliderValue(value);
     setLocalStatus(value > 0);
-    const cmdType = device.type === 'light' ? 'dim_' : 'temp_';
+    const cmdType = device.type === 'light' ? 'dim:' : 'temp:';
     try {
       await sendCommand(device.name, `${cmdType}${value}`);
       onStateChange();
@@ -58,7 +58,7 @@ export function DeviceDetailsModal({ device, onClose, onStateChange }: DeviceDet
     setLocalStatus(nextStatus);
     setSliderValue(nextStatus ? (device.type === 'light' ? 80 : 22) : 0);
     try {
-      await sendCommand(device.name, `toggle_${device.name}`);
+      await sendCommand(device.name, nextStatus ? 'relay:on' : 'relay:off');
       onStateChange();
     } catch (err) {
       // Ignored

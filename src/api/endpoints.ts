@@ -50,10 +50,10 @@ export async function getDevices(): Promise<Device[]> {
 }
 
 // Single Command sender
-export async function sendCommand(device: string, command: string): Promise<{ success: boolean; message?: string }> {
+export async function sendCommand(device: string, state: string): Promise<{ success: boolean; message?: string }> {
   const response = await api.post<{ success: boolean; message?: string }>('api/web/command', {
     device,
-    command,
+    state,
   });
   return response.data;
 }
