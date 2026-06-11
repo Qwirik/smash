@@ -169,8 +169,8 @@ export function Dashboard() {
   useEffect(() => {
     setFavLoading(true);
     getDevices()
-      .then((data) => setFavoriteDevices(data))
-      .catch(() => {})
+      .then((data) => setFavoriteDevices(Array.isArray(data) ? data : []))
+      .catch(() => setFavoriteDevices([]))
       .finally(() => setFavLoading(false));
   }, []);
 
@@ -561,7 +561,8 @@ export function Dashboard() {
     );
 
     try {
-      const result = await sendCommand(device.name, `toggle_${device.name}`);
+      const stateCmd = checked ? 'reley_on' : 'reley_off';
+      const result = await sendCommand(device.id, stateCmd);
       if (result.success) {
         addToast(`Переключено в эфире: "${device.name}"`, 'success');
       }

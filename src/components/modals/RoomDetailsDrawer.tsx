@@ -32,9 +32,9 @@ export function RoomDetailsDrawer({ roomId, onClose }: RoomDetailsDrawerProps) {
       setLoading(true);
       getDevices()
         .then((data) => {
-          setAllDevices(data);
+          setAllDevices(Array.isArray(data) ? data : []);
         })
-        .catch(() => {})
+        .catch(() => setAllDevices([]))
         .finally(() => setLoading(false));
     }
   }, [roomId, rooms]); // Reload if room devices mapping changes
@@ -92,7 +92,8 @@ export function RoomDetailsDrawer({ roomId, onClose }: RoomDetailsDrawerProps) {
     );
 
     try {
-      const result = await sendCommand(device.name, `toggle_${device.name}`);
+      const stateCmd = checked ? 'reley_on' : 'reley_off';
+      const result = await sendCommand(device.id, stateCmd);
       if (result.success) {
         addToast(`Успешно переключено: "${device.name}"`, 'success');
       }
@@ -108,8 +109,8 @@ export function RoomDetailsDrawer({ roomId, onClose }: RoomDetailsDrawerProps) {
     );
 
     try {
-      const prefix = device.type === 'light' ? 'dim_' : 'temp_';
-      await sendCommand(device.name, `${prefix}${val}`);
+      const prefix = device.type === 'light' ? 'dim:' : 'temp:';
+      await sendCommand(device.id, `${prefix}${val}`);
     } catch (err) {
       // Graceful fallback
     }

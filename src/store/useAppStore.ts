@@ -290,30 +290,7 @@ export const useAppStore = create<AppState>()(
       setDashboardSizes: (sizes) => set({ dashboardSizes: sizes }),
 
       // Custom Scenarios Store List
-      customScenarios: [
-        {
-          id: 'scen-1',
-          name: 'Ночное охлаждение',
-          triggerType: 'time',
-          triggerValue: '23:00',
-          actionDevice: 'Кондиционер',
-          actionType: 'value',
-          actionValue: 18,
-          enabled: true,
-          icon: 'snowflake',
-        },
-        {
-          id: 'scen-2',
-          name: 'Автосвет в гостиной',
-          triggerType: 'motion',
-          triggerValue: 'В движении',
-          actionDevice: 'Люстра',
-          actionType: 'on',
-          actionValue: 80,
-          enabled: false,
-          icon: 'lightbulb',
-        }
-      ],
+      customScenarios: [],
       addCustomScenario: (entry) => set((state) => ({ customScenarios: [...state.customScenarios, entry] })),
       removeCustomScenario: (id) => set((state) => ({ customScenarios: state.customScenarios.filter((s) => s.id !== id) })),
       toggleCustomScenario: (id) => set((state) => ({
@@ -324,13 +301,7 @@ export const useAppStore = create<AppState>()(
       })),
 
       // Rooms Initial Info List
-      rooms: [
-        { id: 'room-1', name: 'Гостиная', description: 'Основная зона релаксации и контроля воздуха', deviceIds: ['light-1', 'climate-1'], temperature: 24, humidity: 45 },
-        { id: 'room-2', name: 'Кухня', description: 'Зона готовки и умной бытовой техники', deviceIds: ['light-2'], temperature: 23, humidity: 48 },
-        { id: 'room-3', name: 'Спальня', description: 'Приватная зона сна с климат-системами', deviceIds: ['climate-2'], temperature: 22, humidity: 40 },
-        { id: 'room-4', name: 'Ванная', description: 'Санитарный узел с датчиками протекания воды', deviceIds: ['security-2'], temperature: 25, humidity: 65 },
-        { id: 'room-5', name: 'Улица / Двор', description: 'Уличный периметр под сетевой охраной', deviceIds: ['security-1'], temperature: 14, humidity: 70 },
-      ],
+      rooms: [],
       selectedRoomId: null,
       setSelectedRoomId: (id) => set({ selectedRoomId: id }),
       addRoom: (name, desc) => {
@@ -383,7 +354,7 @@ export const useAppStore = create<AppState>()(
           set((state) => ({
             toasts: state.toasts.filter((t) => t.id !== id),
           }));
-        }, 4000);
+        }, 20000);
       },
       removeToast: (id) =>
         set((state) => ({

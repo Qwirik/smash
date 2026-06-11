@@ -8,9 +8,24 @@ api.interceptors.request.use(
   (config) => {
     const { serverUrl, apiKey } = useAppStore.getState();
 
-    // Clean up trailing slash and bind baseline configuration
-    const normalizedUrl = serverUrl.replace(/\/+$/, '');
-    config.baseURL = normalizedUrl;
+    // If serverUrl contains port 8080 or is empty, we force it to use the local Vite proxy
+    // by setting baseURL to an empty string (which resolves to the current window location).
+    // This bypasses the CORS issue by routing through the Vite dev server proxy.
+    let normalizedUrl = serverUrl.trim();
+
+    // Auto-detect and override to proxy if user entered the backend address directly
+    if (normalizedUrl === '' || normalizedUrl.includes(':8080')) {
+      config.baseURL = '/'; // Resolves to current Vite host e.g. http://192.168.1.88:3000/
+    } else {
+      // Normal external backend connection
+      if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+        normalizedUrl = 'http://' + normalizedUrl;
+      }
+      if (!normalizedUrl.endsWith('/')) {
+        normalizedUrl += '/';
+      }
+      config.baseURL = normalizedUrl;
+    }
 
     // Attach SmashCore API key
     if (apiKey) {
@@ -26,31 +41,56 @@ api.interceptors.request.use(
 
 // Response Interceptor: Global interception and user notice translation
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const { addToast } = useAppStore.getState();
-    let errorMsg = 'Ошибка соединения с бэкендом SmashCore';
-
-    if (error.response) {
-      const status = error.response.status;
-      const serverDetails = error.response.data?.message || '';
-
-      if (status === 401 || status === 403) {
-        errorMsg = 'Неверный API-ключ или доступ заблокирован';
-      } else if (status === 404) {
-        errorMsg = `Ресурс не найден (404): ${errorMsg}`;
-      } else {
-        errorMsg = `Ошибка сервера (${status}): ${serverDetails || 'Внутренняя неисправность'}`;
+  (response) => {
+    // Force JSON parsing if the C++ backend forgot the Content-Type: application/json header
+    if (typeof response.data === 'string') {
+      const trimmed = response.data.trim();
+      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+        try {
+          response.data = JSON.parse(trimmed);
+        } catch (e) {
+          // Leave it as a string if parsing fails
+        }
       }
-    } else if (error.request) {
-      // No response received (Timeout or CORS restriction or socket down)
-      errorMsg = 'Ошибка соединения: Нет ответа от SmashCore сервера. Проверьте URL сети!';
-    } else {
-      errorMsg = `Критическая ошибка: ${error.message}`;
     }
 
-    // Fire the automatic self-cleaning toast in russian
-    addToast(errorMsg, 'error');
+    // Detect if the server incorrectly returned HTML instead of JSON
+    if (typeof response.data === 'string' && response.data.trim().toLowerCase().startsWith('<!doctype html>')) {
+      const errorMsg = 'Сервер вернул HTML-страницу вместо JSON. Проверьте правильность порта бэкенда (например, :8080 вместо :3000)';
+      useAppStore.getState().addToast(errorMsg, 'error');
+      // Replace data to prevent frontend crashes downstream
+      response.data = [];
+      return Promise.reject(new Error(errorMsg));
+    }
+    return response;
+  },
+  (error) => {
+    const { addToast } = useAppStore.getState();
+
+    // Construct a highly detailed error message for debugging
+    let detailedMsg = `[AXIOS ERROR] ${error.message}\n`;
+
+    if (error.config && error.config.url) {
+      detailedMsg += `URL: ${error.config.baseURL || ''}${error.config.url}\n`;
+      detailedMsg += `Method: ${error.config.method?.toUpperCase()}\n`;
+    }
+
+    if (error.response) {
+      detailedMsg += `Status: ${error.response.status} ${error.response.statusText}\n`;
+      const dataStr = typeof error.response.data === 'object' ? JSON.stringify(error.response.data) : String(error.response.data).substring(0, 100);
+      detailedMsg += `Data: ${dataStr}\n`;
+    } else if (error.request) {
+      detailedMsg += 'No response received from server (Possible CORS issue or server down).\n';
+    }
+
+    // Output to console for easy copying by developer
+    console.error("=== DETAILED API ERROR ===");
+    console.error(detailedMsg);
+    console.error(error);
+    console.error("==========================");
+
+    // Fire the toast with full details
+    addToast(detailedMsg, 'error');
 
     return Promise.reject(error);
   }

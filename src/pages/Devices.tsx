@@ -47,9 +47,10 @@ export function Devices({ searchQuery }: DevicesProps) {
     if (showLoader) setLoading(true);
     try {
       const data = await getDevices();
-      setDevices(data);
+      setDevices(Array.isArray(data) ? data : []);
     } catch (err) {
       // Handled gracefully
+      setDevices([]);
     } finally {
       if (showLoader) setLoading(false);
     }
@@ -76,7 +77,8 @@ export function Devices({ searchQuery }: DevicesProps) {
     );
 
     try {
-      const result = await sendCommand(device.name, `toggle_${device.name}`);
+      const stateCmd = checked ? 'reley_on' : 'reley_off';
+      const result = await sendCommand(device.id, stateCmd);
       if (result.success) {
         addToast(`Передана команда переключения: "${device.name}"`, 'success');
       }
@@ -107,13 +109,15 @@ export function Devices({ searchQuery }: DevicesProps) {
 
   // Filters items matches
   const filteredDevices = devices.filter((device) => {
+    if (!device) return false;
+
     if (activeFilter !== 'all' && device.type !== activeFilter) {
       return false;
     }
     if (searchQuery.trim() !== '') {
       const search = searchQuery.toLowerCase();
-      const matchName = device.name.toLowerCase().includes(search);
-      const matchLoc = device.location.toLowerCase().includes(search);
+      const matchName = (device.name || '').toLowerCase().includes(search);
+      const matchLoc = (device.location || '').toLowerCase().includes(search);
       return matchName || matchLoc;
     }
     return true;
