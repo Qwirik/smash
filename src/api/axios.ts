@@ -42,6 +42,18 @@ api.interceptors.request.use(
 // Response Interceptor: Global interception and user notice translation
 api.interceptors.response.use(
   (response) => {
+    // Force JSON parsing if the C++ backend forgot the Content-Type: application/json header
+    if (typeof response.data === 'string') {
+      const trimmed = response.data.trim();
+      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+        try {
+          response.data = JSON.parse(trimmed);
+        } catch (e) {
+          // Leave it as a string if parsing fails
+        }
+      }
+    }
+
     // Detect if the server incorrectly returned HTML instead of JSON
     if (typeof response.data === 'string' && response.data.trim().toLowerCase().startsWith('<!doctype html>')) {
       const errorMsg = 'Сервер вернул HTML-страницу вместо JSON. Проверьте правильность порта бэкенда (например, :8080 вместо :3000)';
