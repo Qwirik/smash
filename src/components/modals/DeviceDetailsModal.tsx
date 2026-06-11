@@ -46,7 +46,7 @@ export function DeviceDetailsModal({ device, onClose, onStateChange }: DeviceDet
     setLocalStatus(value > 0);
     const cmdType = device.type === 'light' ? 'dim:' : 'temp:';
     try {
-      await sendCommand(device.name, `${cmdType}${value}`);
+      await sendCommand(device.id, `${cmdType}${value}`);
       onStateChange();
     } catch (err) {
       // Ignored: dynamic mock already handled
@@ -58,7 +58,7 @@ export function DeviceDetailsModal({ device, onClose, onStateChange }: DeviceDet
     setLocalStatus(nextStatus);
     setSliderValue(nextStatus ? (device.type === 'light' ? 80 : 22) : 0);
     try {
-      await sendCommand(device.name, nextStatus ? 'relay:on' : 'relay:off');
+      await sendCommand(device.id, nextStatus ? 'reley_on' : 'reley_off');
       onStateChange();
     } catch (err) {
       // Ignored

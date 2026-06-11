@@ -561,8 +561,8 @@ export function Dashboard() {
     );
 
     try {
-      const stateCmd = checked ? 'relay:on' : 'relay:off';
-      const result = await sendCommand(device.name, stateCmd);
+      const stateCmd = checked ? 'reley_on' : 'reley_off';
+      const result = await sendCommand(device.id, stateCmd);
       if (result.success) {
         addToast(`Переключено в эфире: "${device.name}"`, 'success');
       }

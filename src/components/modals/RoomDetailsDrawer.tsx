@@ -92,8 +92,8 @@ export function RoomDetailsDrawer({ roomId, onClose }: RoomDetailsDrawerProps) {
     );
 
     try {
-      const stateCmd = checked ? 'relay:on' : 'relay:off';
-      const result = await sendCommand(device.name, stateCmd);
+      const stateCmd = checked ? 'reley_on' : 'reley_off';
+      const result = await sendCommand(device.id, stateCmd);
       if (result.success) {
         addToast(`Успешно переключено: "${device.name}"`, 'success');
       }
@@ -110,7 +110,7 @@ export function RoomDetailsDrawer({ roomId, onClose }: RoomDetailsDrawerProps) {
 
     try {
       const prefix = device.type === 'light' ? 'dim:' : 'temp:';
-      await sendCommand(device.name, `${prefix}${val}`);
+      await sendCommand(device.id, `${prefix}${val}`);
     } catch (err) {
       // Graceful fallback
     }
